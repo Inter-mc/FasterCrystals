@@ -44,7 +44,6 @@ dependencies {
 
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.github.retrooper:packetevents-spigot:2.8.0-SNAPSHOT")
-    compileOnly("dev.jorel:commandapi-bukkit-core:10.0.0")
 
     compileOnly("org.projectlombok:lombok:1.18.38")
     annotationProcessor("org.projectlombok:lombok:1.18.38")
@@ -75,6 +74,13 @@ bukkitPluginYaml {
     authors.add("Jyguy")
     apiVersion = "1.20.5"
     foliaSupported = true
-    depend.addAll("packetevents", "CommandAPI")
+    depend.addAll("packetevents")
     softDepend.addAll("PlaceholderAPI")
+    commands {
+        register("fastercrystals") {
+            description = "Main command for FasterCrystals"
+            permission = "fastercrystals.toggle"
+            aliases = listOf("fastcrystal")
+        }
+    }
 }

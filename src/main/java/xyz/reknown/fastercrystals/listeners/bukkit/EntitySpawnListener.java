@@ -22,15 +22,13 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 import xyz.reknown.fastercrystals.FasterCrystals;
 
 public class EntitySpawnListener implements Listener {
     @EventHandler
     public void onEntitySpawn(EntitySpawnEvent event) {
         if (event.getEntityType() == EntityType.END_CRYSTAL) {
-            FasterCrystals plugin = JavaPlugin.getPlugin(FasterCrystals.class);
-            plugin.getCrystalIds().put(event.getEntity().getEntityId(), (EnderCrystal) event.getEntity());
+            FasterCrystals.getInstance().getCrystalIds().put(event.getEntity().getEntityId(), (EnderCrystal) event.getEntity());
         }
     }
 }

@@ -18,7 +18,6 @@
 package xyz.reknown.fastercrystals;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract;
 import io.github.retrooper.packetevents.util.folia.FoliaScheduler;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -30,8 +29,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
-import xyz.reknown.fastercrystals.bstats.Metrics;
-import xyz.reknown.fastercrystals.commands.impl.FastercrystalsCommand;
+import xyz.reknown.fastercrystals.commands.FasterCrystalsCommand;
 import xyz.reknown.fastercrystals.listeners.bukkit.*;
 import xyz.reknown.fastercrystals.listeners.packet.AnimationListener;
 import xyz.reknown.fastercrystals.listeners.packet.InteractEntityListener;
@@ -44,20 +42,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class FasterCrystals extends JavaPlugin {
-    private List<SimplePacketListenerAbstract> listeners;
+    @Getter
+    public static FasterCrystals instance;
     private Users users;
     private Map<Integer, EnderCrystal> crystalIds;
 
     private static final Set<Material> AIR_TYPES = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR);
 
+
     @Override
     public void onEnable() {
         saveDefaultConfig();
 
+        instance = this;
+
         this.crystalIds = FoliaScheduler.isFolia() ? new ConcurrentHashMap<>() : new HashMap<>();
         this.users = new Users();
 
-        new FastercrystalsCommand().register();
+        new FasterCrystalsCommand("fastercrystals");
 
         getServer().getPluginManager().registerEvents(new EntityRemoveFromWorldListener(), this);
         getServer().getPluginManager().registerEvents(new EntitySpawnListener(), this);
@@ -65,14 +67,9 @@ public class FasterCrystals extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
         getServer().getPluginManager().registerEvents(new WorldUnloadListener(), this);
 
-        this.listeners = List.of(
-                new AnimationListener(),
-                new InteractEntityListener(),
-                new LastPacketListener()
-        );
-        for (SimplePacketListenerAbstract listener : listeners) {
-            PacketEvents.getAPI().getEventManager().registerListener(listener);
-        }
+        PacketEvents.getAPI().getEventManager().registerListener(new AnimationListener());
+        PacketEvents.getAPI().getEventManager().registerListener(new InteractEntityListener());
+        PacketEvents.getAPI().getEventManager().registerListener(new LastPacketListener());
 
         // Register PlaceholderAPI expansions
         if (Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI")) {
@@ -80,14 +77,6 @@ public class FasterCrystals extends JavaPlugin {
         }
 
         int pluginId = 22397;
-        new Metrics(this, pluginId);
-    }
-
-    @Override
-    public void onDisable() {
-        for (SimplePacketListenerAbstract listener : this.listeners) {
-            PacketEvents.getAPI().getEventManager().unregisterListener(listener);
-        }
     }
 
     public void spawnCrystal(Location loc, Player player, ItemStack item) {
